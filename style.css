@@ -1,0 +1,133 @@
+/* style.css: Basic scaffold for grid-room */
+:root {
+    --color-bg: #fafafa;
+    --color-fg: #222;
+    --color-accent: #6cf;
+    --color-grid: #ddd;
+    --cells: 30;
+    --cell-size: 40px;
+    --half: calc(var(--cells) * var(--cell-size) / 2);
+}
+
+body {
+    margin: 0;
+    background: var(--color-bg);
+    font-family: system-ui, sans-serif;
+    transition: opacity 0.2s ease-in;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    place-items: center;
+    perspective: 1000px;
+}
+
+.room {
+    --grid-cell-size: 40px;
+    --grid-width: 1px;
+    --grid-border: var(--grid-width) solid var(--color-grid);
+    height: 100vh;
+    cursor: pointer;
+    touch-action: none;
+}
+
+.plane {
+    display: grid;
+    border-left: var(--grid-border);
+    border-bottom: var(--grid-border);
+    grid-template-columns: repeat(30, 1fr);
+    grid-template-rows: repeat(30, 1fr);
+    transform-origin: 50% 50%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transition: opacity 300ms;
+    will-change: transform;
+    box-sizing: border-box;
+    transform:
+        translate(-50%, -50%)
+        rotateX(var(--rotX, 0deg))
+        rotateY(var(--rotY, 0deg))
+        rotateZ(var(--rotZ, 0deg))
+        translate3d(var(--dx, 0px), var(--dy, 0px), 0)
+        translateZ(0);
+    outline: 2px solid var(--color-fg);
+}
+
+.cell {
+    width: var(--grid-cell-size);
+    height: var(--grid-cell-size);
+    background: var(--color-bg);
+    border-right: var(--grid-border);
+    border-top: var(--grid-border);
+    box-sizing: border-box;
+    transition: background 2s ease, opacity 250ms ease-out;
+}
+
+/* Instantly change background on hover */
+.cell:hover {
+    background: var(--color-accent);
+    transition: background 0ms;
+}
+
+/* Floor plane */
+.floor {
+    --rotX: 55deg;
+    --rotY: 0deg;
+    --rotZ: 45deg;
+    --dx: var(--half);
+    --dy: var(--half);
+}
+
+/* Back-left wall plane */
+.wall {
+    --rotX: 35deg;
+    --rotY: 45deg;
+    --rotZ: 0deg;
+    --dx: var(--half);
+    --dy: calc(-1 * var(--half));
+}
+
+/* Right back wall plane */
+.wall-right {
+    --rotX: 35deg;
+    --rotY: -45deg;
+    --rotZ: 0deg;
+    /* bottom-right corner is (+½W, +½H), so we negate to get dx/dy */
+    --dx: calc(-1 * var(--half));
+    --dy: calc(-1 * var(--half));
+}
+
+/* Table-specific vars & layout */
+.plane.table {
+    /* Size in cells: adjust to taste */
+    --table-width: 4;
+    --table-depth: 12;
+
+    /* Grid dims override */
+    grid-template-columns: repeat(var(--table-width), 1fr);
+    grid-template-rows:    repeat(var(--table-depth), 1fr);
+
+    /* Same tilt as the floor */
+    --rotX: 55deg;
+    --rotY: 0deg;
+    --rotZ: 45deg;
+
+    /* Tweak variables for manual nudging */
+    --table-offset-x: -560px;
+    --table-offset-y: 80px;
+
+    /* Center the table so back-edge hits the wall, with tweak offsets */
+    --dx: calc(
+        var(--half)
+        - ((var(--table-width)  * var(--grid-cell-size)) / 2)
+        + var(--table-offset-x)
+    );
+    --dy: calc(
+        var(--half)
+        - ((var(--table-depth)  * var(--grid-cell-size)) / 2)
+        + var(--table-offset-y)
+    );
+}
